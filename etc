@@ -1,12 +1,3173 @@
 공통 DailyPrices
 
-009 ERP 자료다운로드 
-015 유가헷지
-023 일별LME
+ERP 자료다운로드 
+유가헷지
+일별LME
 사급자재
-정광현황
-TMS국소배기정산
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Sub ArrayExcel(vFileName, vLastRow)
+'
+' ArrayExcel 매크로
+' 엑셀 테두리 생성, 정렬 매크로
+
+' 범위 설정
+    Workbooks(vFileName).Activate
+
+    Range("A2:I" + vLastRow).Select
+    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+' 테두리 생성(모든테두리) start
+    With Selection.Borders(xlEdgeLeft)
+    .LineStyle = xlContinuous
+    End With
+    With Selection.Borders(xlEdgeTop)
+    .LineStyle = xlContinuous
+    End With
+    With Selection.Borders(xlEdgeBottom)
+    .LineStyle = xlContinuous
+    End With
+    With Selection.Borders(xlEdgeRight)
+    .LineStyle = xlContinuous
+    End With
+    With Selection.Borders(xlInsideVertical)
+    .LineStyle = xlContinuous
+    End With
+    With Selection.Borders(xlInsideHorizontal)
+    .LineStyle = xlContinuous
+' 테두리 생성(모든테두리) end
+' 왼쪽 정렬
+    End With
+    With Selection
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlCenter
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+End Sub
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+정광현황
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Sub DeleteRows(strFileName, strSheetName)
+    
+ '불필요 로우 삭제 매크로
+ 'vRow : Excel row 위치값 담는 변수
+ 'vColumn : Excel column 위치값 담는 변수
+ 'vValueC : Excel row값 담는 변수
+ 'vValueR : Excel column 값 담는 변수
+ 'vSeparator : bulk 인지 container인지 구분하여 엑셀 작업 시작위치 구분하는 변수
+ 
+    Dim vColumn As Long
+    Dim vRow As Long
+    Dim vSeparator As Long
+    Dim vValueC As String
+    Dim vValueR As String
+
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+    
+        If InStr(strFileName, "Bulk") Then
+        'Bulk 시트 작업 시 시작 row 3 그 외 시트 작업 시 row 2로 시작
+        
+            vSeparator = 3
+            
+        Else
+            
+            vSeparator = 2
+            
+        End If
+        
+        
+        For vColumn = 1 To 70
+                
+            vValueC = Worksheets(strSheetName).Cells(1, vColumn).Value
+            'A1, B1, C1..... 각 열의 헤더값을 vValue 에 담는다.
+            
+                
+                If vValueC = "입고일" Then
+                ' vValue 값이 입고일인 경우 아래 row부터 loop 진행
+                    
+                    For vRow = vSeparator To 100
+                        
+                        vValueR = Worksheets(strSheetName).Cells(vRow, vColumn).Value
+                        
+                        If vValueR <> "N" And vValueR <> vbNullString Then
+                        '입고일 값이 N이 아니고 빈값이 아니면 해당 row 삭제
+                        
+                            Range(Cells(vRow, 1), Cells(vRow, 50)).Select
+                            Selection.Delete Shift:=xlUp
+                            vRow = vRow - 1
+                        
+                        ElseIf vValueR = vbNullString Then
+                        '입고일 값이 빈값이면 매크로 종료
+                        
+                            Exit Sub
+                            
+                        End If
+                        
+                    Next vRow
+                End If
+                
+        Next vColumn
+
+End Sub
+
+Sub DeleteQuality(strFileName, strSheetName)
+    
+ '불필요 Quality 삭제 매크로
+ 'vRow : Excel row 위치값 담는 변수
+ 'vColumn : Excel column 위치값 담는 변수
+ 'vValueC : Excel row값 담는 변수
+ 'vValueR : Excel column 값 담는 변수
+ 'vSeparator : bulk 인지 container인지 구분하여 엑셀 작업 시작위치 구분하는 변수
+ 
+    Dim vColumn As Long
+    Dim vRow As Long
+    Dim vSeparator As Long
+    Dim vValueC As String
+    Dim vValueR As String
+
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+    
+        If InStr(strFileName, "Bulk") = 7 Then
+        'Bulk 시트 작업 시 시작 row 3 그 외 시트 작업 시 row 2로 시작
+        
+            vSeparator = 3
+            
+        Else
+            
+            vSeparator = 2
+            
+        End If
+        
+        
+        For vColumn = 1 To 70
+                
+            vValueC = Worksheets(strSheetName).Cells(1, vColumn).Value
+            'A1, B1, C1..... 각 열의 헤더값을 vValue 에 담는다.
+            
+                
+                If vValueC = "Quality" Then
+                ' vValue 값이 Quality 경우 아래 row부터 loop 진행
+                    
+                    For vRow = vSeparator To 100
+                        
+                        vValueR = Worksheets(strSheetName).Cells(vRow, vColumn).Value
+                        
+                        If InStr(vValueR, "성안자원") = 1 Then
+                        'Quality 값이 성안자원 을 포함하면 해당 셀에 "성안자원" 입력
+                        
+                            Worksheets(strSheetName).Cells(vRow, vColumn).Value = "성안자원"
+                        
+                        ElseIf InStr(vValueR, "RED DOG") = 1 Then
+                        'Quality 값이 Red Dog을 포함하면 해당 셀에 "Red Dog" 입력
+                        
+                            Worksheets(strSheetName).Cells(vRow, vColumn).Value = "Red Dog"
+                            
+                        End If
+                        
+                    Next vRow
+                End If
+                
+        Next vColumn
+
+End Sub
+
+Sub DeleteAgRows(strFileName, strSheetName, vAgDeleteQuality As String)
+    
+ '은정광(Ag) 파일 불필요 로우 삭제 매크로
+ 'vRow : Excel row 위치값 담는 변수
+ 'vColumn : Excel column 위치값 담는 변수
+ 'vValueC : Excel row값 담는 변수
+ 'vValueR : Excel column 값 담는 변수
+ 
+    Dim vColumn As Long
+    Dim vRow As Long
+    Dim vValueC As String
+    Dim vValueR As String
+    Dim arrAgDeleteQuality() As String
+    
+    arrAgDeleteQuality() = Split(vAgDeleteQuality, "/")
+    
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        
+        For vColumn = 1 To 70
+                
+            vValueC = Worksheets(strSheetName).Cells(1, vColumn).Value
+            'A1, B1, C1..... 각 열의 헤더값을 vValue 에 담는다.
+            
+                
+                If vValueC = "Quality" Then
+                ' vValue 값이 Quality 인 경우 아래 row부터 loop 진행
+                    
+                    For vRow = 2 To 100
+                        
+                        vValueR = Worksheets(strSheetName).Cells(vRow, vColumn).Value
+                        
+                        For Each vQuality In arrAgDeleteQuality()
+                        
+                            If InStr(vValueR, vQuality) = 1 Then
+                            '포함하는 경우
+                                
+                                Exit For
+                            
+                            ElseIf InStr(vValueR, vQuality) <> 1 And vValueR <> vbNullString And vQuality = "CAJAMARQUILLA" Then
+                                
+                                Range(Cells(vRow, 1), Cells(vRow, 50)).Select
+                                Selection.Delete Shift:=xlUp
+                                vRow = vRow - 1
+                                
+                            End If
+
+                        Next
+                        
+                    Next vRow
+                End If
+                
+        Next vColumn
+
+End Sub
+
+Sub Sorting(strFileName, strSheetName)
+    
+ 'Code열(내림차순), ETA열(오름차순) 정렬 매크로
+ 'vRow : Excel row 위치값 담는 변수
+ 'vColumn : Excel column 위치값 담는 변수
+ 'vValueC : Excel row값 담는 변수
+ 'vValueR : Excel column 값 담는 변수
+ 
+    Dim vColumn As Long
+    Dim vRow As Long
+    Dim vSeparator As Long
+    Dim vValueC As String
+    Dim vValueR As String
+
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+    
+        'ETA열 오름차순
+        ActiveWorkbook.Worksheets(strSheetName).AutoFilter.Sort.SortFields.Clear
+        ActiveWorkbook.Worksheets(strSheetName).AutoFilter.Sort.SortFields.Add2 Key:=Range( _
+        "H1:H250"), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
+        xlSortNormal
+        With ActiveWorkbook.Worksheets(strSheetName).AutoFilter.Sort
+            .Header = xlYes
+            .MatchCase = False
+            .Orientation = xlTopToBottom
+            .SortMethod = xlPinYin
+            .Apply
+        End With
+        
+        'Code열 내림차순
+        ActiveWorkbook.Worksheets(strSheetName).AutoFilter.Sort.SortFields.Clear
+        ActiveWorkbook.Worksheets(strSheetName).AutoFilter.Sort.SortFields.Add2 Key:=Range( _
+        "A1:A250"), SortOn:=xlSortOnValues, Order:=xlDescending, DataOption:= _
+        xlSortNormal
+        With ActiveWorkbook.Worksheets(strSheetName).AutoFilter.Sort
+            .Header = xlYes
+            .MatchCase = False
+            .Orientation = xlTopToBottom
+            .SortMethod = xlPinYin
+            .Apply
+        End With
+
+End Sub
+
+
+
+Sub DeleteLastMonthData(strFileName, strSheetName, vLastMonth)
+    
+ '전월 누락데이터 행을 제외한 나머지 행을 삭제하는 매크로
+ 'vRow : Excel row 위치값 담는 변수
+ 'vColumn : Excel column 위치값 담는 변수
+ 'vColumnReceive : 입고일 column 위치값 담는 변수
+ 'vValueC : Excel row값 담는 변수
+ 'vValueR : Excel column 값 담는 변수
+ 'vValueReceiveC : 입고일 컬럼 값을 담는 변수
+ 'vValueReceiveR : 입고일 로우 값을 담는 변수
+ 'vLastMonth : 전월 값
+ 'vSeparator : bulk 인지 container인지 구분하여 엑셀 작업 시작위치 구분하는 변수
+ 
+    Dim vColumn As Long
+    Dim vRow As Long
+    Dim vColumnReceive As Long
+    Dim vSeparator As Long
+    Dim vValueC As String
+    Dim vValueR As String
+    Dim vValueReceiveC As String
+    Dim vValueReceiveR As String
+    Dim arrETA() As String
+    
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+    
+        If InStr(strFileName, "Bulk") = 7 Then
+        'Bulk 시트 작업 시 시작 row 3 그 외 시트 작업 시 row 2로 시작
+        
+            vSeparator = 3
+            
+        Else
+            
+            vSeparator = 2
+            
+        End If
+        
+        
+        For vColumn = 1 To 70
+                
+            vValueC = Worksheets(strSheetName).Cells(1, vColumn).Value
+            'A1, B1, C1..... 각 열의 헤더값을 vValueC 에 담는다.
+            
+                
+                If vValueC = "ETA" Then
+                ' vValueC 값이 ETA 경우 아래 row부터 loop 진행
+                    
+                    For vRow = vSeparator To 100
+                        
+                        vValueR = Worksheets(strSheetName).Cells(vRow, vColumn).Value
+                        
+                        If vValueR = "" Then
+                            Exit Sub
+                        End If
+                        
+                            If InStr(vValueR, "/") Then
+                                
+                                arrETA() = Split(vValueR, "/")
+                                                                            
+                                If InStr(arrETA(0), vLastMonth) Then
+                                'vValueR 값이 vLastMonth 을 포함하면 입고일 셀 해당 행을 확인
+                                     
+                                    vValueReceiveR = Worksheets(strSheetName).Cells(vRow, 2).Value
+                                    
+                                    If vValueReceiveR <> "N" Then
+                                    'N이 아니면 해당 행 삭제
+                                    
+                                        Range(Cells(vRow, 1), Cells(vRow, 50)).Delete Shift:=xlUp
+                                        vRow = vRow - 1
+                                    
+                                    End If
+            
+                                Else
+                                '전월이 아니면 해당 행 삭제
+                                
+                                    Range(Cells(vRow, 1), Cells(vRow, 50)).Delete Shift:=xlUp
+                                    vRow = vRow - 1
+                                    
+                                End If
+                            
+                            ElseIf InStr(vValueR, "월") Then
+                            
+                                arrETA() = Split(vValueR, "월")
+                                
+                                If InStr(arrETA(0), vLastMonth) Then
+                                                                    
+                                    vValueReceiveR = Worksheets(strSheetName).Cells(vRow, 2).Value
+                                                                    
+                                    If vValueReceiveR <> "N" Then
+                                        
+                                        Range(Cells(vRow, 1), Cells(vRow, 50)).Delete Shift:=xlUp
+                                        vRow = vRow - 1
+                                        
+                                    End If
+                                    
+                                Else
+                                    
+                                    Range(Cells(vRow, 1), Cells(vRow, 50)).Delete Shift:=xlUp
+                                    vRow = vRow - 1
+                                    
+                                End If
+                            
+                            End If
+                        
+                    Next vRow
+                    
+                End If
+                
+        Next vColumn
+
+End Sub
+ 
+ 
+Sub FindLastSEQ(strFileName, strSheetName)
+'KZ연정광 파일 SEQ 열에서 번호가 존재하지 않는 행을 찾는 매크로
+    
+    Dim vColumn As Long
+    Dim vRow As Long
+    Dim vSeparator As Long
+    Dim vValueC As String
+    Dim vValueR As String
+    Dim CB As Object
+
+    Set CB = CreateObject("new:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
+    
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        
+        For vColumn = 1 To 70
+                
+            vValueC = Worksheets(strSheetName).Cells(2, vColumn).Value
+            'A1, B1, C1..... 각 열의 헤더값을 vValue 에 담는다.
+                
+                If InStr(vValueC, "중복") Then
+                ' vValue 값이 분석인 경우 아래 row부터 loop 진행
+                    For vRow = 3 To 1000
+                        
+                        vValueR = Worksheets(strSheetName).Cells(vRow, vColumn).Value
+
+                        If vValueR <> "1" Then
+                        '입고일 값이 1이 아닐때 해당 row 값을 가져온다.
+                            
+                            CB.Clear
+                            On Error Resume Next
+                            CB.SetText vRow
+                            CB.PutInClipBoard
+                            Exit Sub
+                            
+                        End If
+                        
+                    Next vRow
+                End If
+                
+        Next vColumn
+
+End Sub
+
+Sub SortingSEQ(strFileName, strSheetName)
+    
+ 'SEQ열(오름차순) 정렬 매크로
+ 'vRow : Excel row 위치값 담는 변수
+ 'vColumn : Excel column 위치값 담는 변수
+ 'vValueC : Excel row값 담는 변수
+ 'vValueR : Excel column 값 담는 변수
+ 
+    'Dim vColumn As Long
+    'Dim vRow As Long
+    'Dim vSeparator As Long
+    'Dim vValueC As String
+    'Dim vValueR As String
+
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+    
+        'ETA열 오름차순
+        ActiveWorkbook.Worksheets(strSheetName).ListObjects("표1").Sort.SortFields.Clear
+        ActiveWorkbook.Worksheets(strSheetName).ListObjects("표1").Sort.SortFields.Add2 Key _
+        :=Range("표1[[#All],[SEQ]]"), SortOn:=xlSortOnValues, Order:=xlAscending, _
+        DataOption:=xlSortNormal
+    With ActiveWorkbook.Worksheets(strSheetName).ListObjects("표1").Sort
+        .Header = xlYes
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+        
+End Sub
+
+Sub PasteLimsSEQ(strFileName1, strSheetName1, strFileName2, strSheetName2, lastRow)
+    
+ 'LIMS SEQ번호가 갱신된 건을 KZ연정광현황 정광품위시트에 복사하는 매크로
+ 'strFileName1 : 값을 복사할 파일명
+ 'strSheetName1 : 값을 복사할 파일의 시트명
+ 'strFileName2 : 값을 붙혀넣을 파일명
+ 'strSheetName2 : 값을 붙혀넣을 파일의 시트명
+ 'vRow1 : Excel(strFileName1) row 위치값 담는 변수
+ 'vRow2 : Excel(strFileName2) row 위치값 담는 변수
+ 'vColumn : Excel column 위치값 담는 변수
+ 'vValueC : Excel row값 담는 변수
+ 'vValueR1Quality : Excel column 값(광종) 담는 변수
+ 'vValueR1DMT : Excel column 값(DMT) 담는 변수
+ 'vValueR2Quality : Excel column 값(광종) 담는 변수
+ 'vValueR2DMT : Excel column 값(DMT) 담는 변수
+ 'vValueSEQ : SEQ번호 값을 담는 변수
+ 
+    Dim vColumn As Long
+    Dim vRow1 As Long
+    Dim vRow2 As Long
+    Dim vValueC As String
+    Dim vValueR1Quality As String
+    Dim vValueR1DMT As String
+    Dim vValueR2Quality As String
+    Dim vValueR2DMT As String
+    Dim vValueR2SEQ As String
+    Dim arr1() As String
+    
+    Workbooks(strFileName1).Sheets(strSheetName1).Activate
+        
+        Dim vCheckString
+        For Each cell_ In Range("F3:F2000")
+            If cell_.Value <> "" Then vCheckString = vCheckString & "/" & cell_.Value & "/"
+        Next
+        
+        
+        For vColumn = 1 To 70
+                
+            vValueC = Worksheets(strSheetName1).Cells(2, vColumn).Value
+            'A1, B1, C1..... 각 열의 헤더값을 vValue 에 담는다.
+            
+                
+                If vValueC = "광종" Then
+                ' vValue 값이 광종인 경우 아래 row부터 loop 진행
+                    vRow1 = lastRow
+                    For vRow1 = lastRow To 2000
+                        vRow1 = vRow1 + 1
+                        Workbooks(strFileName1).Sheets(strSheetName1).Activate
+                        'KZ 연정광 파일 활성화
+                        
+                        vValueR1DMT = Worksheets(strSheetName1).Cells(vRow1, 7).Value
+                        'G열 InvoiceDMT 값 저장
+                        
+                        If vValueR1DMT = "0" Then
+                            Exit Sub
+                        End If
+                        
+                        vValueR1Quality = Worksheets(strSheetName1).Cells(vRow1, vColumn).Value
+                        'E열 광종 값 저장
+                        
+                        If InStr(vValueR1Quality, "(") Then
+                        'vValueR1Quality 값이 "(" 을 포함하면
+                            
+                            arr1() = Split(vValueR1Quality, "(")
+                            ' "(" 기준으로 split하여
+                            
+                            vValueR1Quality = arr1(0)
+                            '첫번째 배열 값만 가져온다.
+                            
+                        ElseIf vValueR1Quality = vbNullString Then
+                            
+                            Exit For
+                            
+                        End If
+                        
+                        For vRow2 = 2 To 200
+                            
+                            Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                            '쿼리 받은 파일 활성화
+                            
+                            vValueR2Quality = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                            '광종 값 저장
+                            
+                            vValueR2DMT = Worksheets(strSheetName2).Cells(vRow2, 8).Value
+                            'DMT 값 저장
+                            
+                            vValueR2SEQ = Worksheets(strSheetName2).Cells(vRow2, 1).Value
+                            'SEQ 번호 저장
+                            
+                            If InStr(1, vValueR2Quality, vValueR1Quality, 1) And vValueR1DMT = vValueR2DMT Then
+                            'KZ 광종 값이 쿼리 광종 값에 포함이 되고, KZ DMT 값과 쿼리 DMT 값이 같으면
+                            
+                                If InStr(1, vCheckString, vValueR2SEQ) Then
+                                
+                                    Workbooks(strFileName1).Worksheets(strSheetName1).Cells(vRow1, 1).EntireRow.Delete
+                                    vRow1 = vRow1 - 1
+                                    
+                                Else
+                                
+                                    Workbooks(strFileName1).Worksheets(strSheetName1).Cells(vRow1, vColumn + 1).Value = vValueR2SEQ
+                                    'SEQ번호 값을 KZ 연정광 파일에 복사
+                                
+                                End If
+                                
+                                
+                                
+                                Exit For
+                                
+                            ElseIf vValueR2SEQ = vbNullString Then
+                                
+                                Exit For
+                                
+                            End If
+    
+                        Next vRow2
+                        
+                    Next vRow1
+                End If
+                
+        Next vColumn
+
+End Sub
+
+
+Sub DelivertLastRow(strFileName, strSheetName)
+'DeliverySchedule 파일 종합시트 마지막 row 값 구하는 매크로
+
+    Dim vRow As Long
+    Dim CB As Object
+    Dim vValueCode As String
+
+    Set CB = CreateObject("new:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
+    
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+    
+    For vRow = 2 To 500
+        
+        vValueCode = Worksheets(strSheetName).Cells(vRow, 1).Value
+        '1열 Code 열 값을 가져와서
+        
+        If vValueCode = vbNullString Then
+        '빈값이면 해당 row 값을 clipboard로 저장
+        
+            CB.Clear
+            On Error Resume Next
+            CB.SetText vRow - 1
+            CB.PutInClipBoard
+            Exit Sub
+            
+        End If
+    
+    Next vRow
+End Sub
+Sub SEQRegDeleteWord(strFileName, strSheetName)
+'문자열 지우는 매크로
+    
+    Dim RegEx As Object
+    Dim Matches As Variant
+    Dim vColumn As Long
+    Dim vRow As Long
+    Dim vValueC As String
+    Dim vValueR As String
+    
+    '정규표현식 : 영문자가 포함 판별
+    Set RegEx = CreateObject("VBScript.RegExp")
+    RegEx.Pattern = "[a-zA-Z]"
+    RegEx.Global = True
+        
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        For vColumn = 1 To 70
+                
+            vValueC = Worksheets(strSheetName).Cells(2, vColumn).Value
+            'A1, B1, C1..... 각 열의 헤더값을 vValue 에 담는다.
+            
+                If vValueC = "SEQ" Then
+                ' vValue 값이 SEQ인 경우 아래 row부터 loop 진행
+                    
+                    For vRow = 3 To 1500
+                        
+                        vValueR = Worksheets(strSheetName).Cells(vRow, vColumn).Value
+                        
+                        Set Matches = RegEx.Execute(vValueR)
+            
+                        If Matches.Count > 0 Then
+                        'vValueR 이 영문자 포함 시 해당 셀 값에 ""입력
+                        
+                            Worksheets(strSheetName).Cells(vRow, vColumn).Value = vbNullString
+                        
+                        ElseIf vValueR = "" Then
+                        'SEQ 값이 빈값이면 매크로 종료
+                        
+                            Exit Sub
+                            
+                        End If
+                        
+                    Next vRow
+                    
+                End If
+                
+        Next vColumn
+    
+End Sub
+
+Sub SEQRegDeleteNotWord(strFileName, strSheetName, lastRow)
+'문자열이 아닌 값 지우는 매크로
+    
+    Dim RegEx As Object
+    Dim Matches As Variant
+    Dim vColumn As Long
+    Dim vRow As Long
+    Dim vValueC As String
+    Dim vValueR As String
+    Dim vValueQ As String
+    Dim vValueDMT As String
+    
+    '정규표현식 : 영문자가 포함 판별
+    Set RegEx = CreateObject("VBScript.RegExp")
+    RegEx.Pattern = "[a-zA-Z]"
+    RegEx.Global = True
+        
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        For vColumn = 1 To 70
+                
+            vValueC = Worksheets(strSheetName).Cells(2, vColumn).Value
+            'A1, B1, C1..... 각 열의 헤더값을 vValue 에 담는다.
+            
+                If vValueC = "SEQ" Then
+                ' vValue 값이 SEQ인 경우 아래 row부터 loop 진행
+                    
+                    For vRow = lastRow To 1500
+                        
+                        If IsError(Worksheets(strSheetName).Cells(vRow, vColumn).Value) Then
+                        
+                            Worksheets(strSheetName).Cells(vRow, vColumn).Value = vbNullString
+                        
+                        Else
+                        
+                            vValueR = Worksheets(strSheetName).Cells(vRow, vColumn).Value
+                            vValueDMT = Worksheets(strSheetName).Cells(vRow, 7).Value
+                            
+                            If vValueDMT = "0" Or vValueDMT = vbNullString Then
+                                
+                                Exit Sub
+                                
+                            End If
+                            
+                            vValueQ = Worksheets(strSheetName).Cells(vRow, 5).Value
+                            
+                            
+                            Set Matches = RegEx.Execute(vValueR)
+                
+                            If Matches.Count = 0 Then
+                            'vValueR 이 영문자 포함 안될시 해당 셀 값에 ""입력
+                            
+                                Worksheets(strSheetName).Cells(vRow, vColumn).Value = vbNullString
+                                    
+                            End If
+                        
+                        End If
+                        
+                        
+                        
+                    Next vRow
+                    
+                End If
+                
+        Next vColumn
+    
+End Sub
+
+Sub GetAnalysisSEQNumbers(strFileName, strSheetName)
+
+    Dim vColumn As Long
+    Dim vRow As Long
+    Dim vValueC As String
+    Dim vValueRSEQ As String
+    Dim vValueRAN As String
+    Dim vSEQs As String
+    Dim CB As Object
+
+    Set CB = CreateObject("new:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
+        
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        For vColumn = 1 To 70
+                
+            vValueC = Worksheets(strSheetName).Cells(2, vColumn).Value
+            'A1, B1, C1..... 각 열의 헤더값을 vValue 에 담는다.
+            
+                If vValueC = "SEQ" Then
+                ' vValue 값이 SEQ인 경우 아래 row부터 loop 진행
+                    
+                    For vRow = 3 To 1500
+                        
+                        vValueRSEQ = Worksheets(strSheetName).Cells(vRow, vColumn).Value
+                        
+                        vValueRAN = Worksheets(strSheetName).Cells(vRow, 18).Value
+                        
+                        If vValueRSEQ <> "" And vValueRAN <> "d" Then
+                       
+                            If vSEQs <> "" Then
+                        
+                                vSEQs = vSEQs & "/" & vValueRSEQ
+                            
+                            Else
+                            
+                                vSEQs = vValueRSEQ
+                            
+                            End If
+                            
+                        ElseIf vValueRSEQ = vbNullString Then
+                        'SEQ 값이 빈값이면 매크로 종료
+                        
+                            CB.Clear
+                            On Error Resume Next
+                            CB.SetText vSEQs
+                            CB.PutInClipBoard
+                            
+                            Exit Sub
+                            
+                        End If
+                        
+                    Next vRow
+                    
+                End If
+                
+        Next vColumn
+
+
+
+End Sub
+Sub InsertAnalysisData(strFileName1, strSheetName1, strFileName2, strSheetName2, AnalysisType)
+'LabMate 분석치 값을 입력하는 매크로
+    
+    'vValueSEQ : LabMate 파일 SEQ 값을 담는 변수
+    'vValueSEQKZ : KZ연정광 현황 파일 SEQ값을 담는 변수
+    'vValueQuality : 광종 값을 담는 변수
+    
+    Dim vRow1 As Long
+    Dim vRow2 As Long
+    Dim vValueSEQ As String
+    Dim vValueSEQKZ As String
+    Dim vValueQuality As String
+    Dim vValueResult As String
+    
+    
+        For vRow1 = 2 To 1000
+            
+            Workbooks(strFileName1).Sheets(strSheetName1).Activate
+            
+            vValueSEQ = Worksheets(strSheetName1).Cells(vRow1, 1).Value
+            vValueQuality = Worksheets(strSheetName1).Cells(vRow1, 2).Value
+            vValueResult = Worksheets(strSheetName1).Cells(vRow1, 4).Value
+            'SEQ, 광종, 결과 값을 저장
+            
+            If vValueResult <> vbNullString Then
+            '결과값이 빈값이면 엎어치지 않고 기존값 유지
+            
+                If vValueQuality = "Pb" Then
+                '광종이 Pb인 경우
+                
+                    For vRow2 = 400 To 1000
+                    
+                        Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                        
+                        vValueSEQKZ = Worksheets(strSheetName2).Cells(vRow2, 6).Value
+                        
+                        If vValueSEQ = vValueSEQKZ Then
+                        'LabMate파일 SEQ 번호와 KZ연정광파일 SEQ 번호가 같은 열을 찾아서 결과 값 입력
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 8).Value = vValueResult
+                            
+                            Exit For
+                        End If
+                        
+                    Next vRow2
+                    
+                ElseIf vValueQuality = "Ag" Then
+                '광종이 Ag인 경우
+                
+                    For vRow2 = 400 To 1000
+                    
+                        Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                        
+                        vValueSEQKZ = Worksheets(strSheetName2).Cells(vRow2, 6).Value
+                        
+                        If vValueSEQ = vValueSEQKZ Then
+                        'LabMate파일 SEQ 번호와 KZ연정광파일 SEQ 번호가 같은 열을 찾아서 결과 값 입력
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 12).Value = vValueResult
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                    
+                ElseIf vValueQuality = "Au" Then
+                '광종이 Au인 경우
+                
+                    For vRow2 = 400 To 1000
+                    
+                        Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                        
+                        vValueSEQKZ = Worksheets(strSheetName2).Cells(vRow2, 6).Value
+                        
+                        If vValueSEQ = vValueSEQKZ Then
+                        'LabMate파일 SEQ 번호와 KZ연정광파일 SEQ 번호가 같은 열을 찾아서 결과 값 입력
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 14).Value = vValueResult
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                    
+                ElseIf vValueQuality = "Cu" Then
+                '광종이 Cu인 경우
+                
+                    For vRow2 = 400 To 1000
+                    
+                        Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                        
+                        vValueSEQKZ = Worksheets(strSheetName2).Cells(vRow2, 6).Value
+                        
+                        If vValueSEQ = vValueSEQKZ Then
+                        'LabMate파일 SEQ 번호와 KZ연정광파일 SEQ 번호가 같은 열을 찾아서 결과 값 입력
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 10).Value = vValueResult
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                    
+                ElseIf vValueQuality = "Sb" Then
+                '광종이 Sb인 경우
+                
+                    For vRow2 = 400 To 1000
+                    
+                        Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                        
+                        vValueSEQKZ = Worksheets(strSheetName2).Cells(vRow2, 6).Value
+                        
+                        If vValueSEQ = vValueSEQKZ Then
+                        'LabMate파일 SEQ 번호와 KZ연정광파일 SEQ 번호가 같은 열을 찾아서 결과 값 입력
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 16).Value = vValueResult
+                            
+                            Worksheets(strSheetName2).Cells(vRow2, 18).Value = AnalysisType
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                    
+                End If
+                
+            End If
+            
+        Next vRow1
+        
+        
+End Sub
+
+
+Sub FillCountNum(strFileName, strSheetName)
+'kz연정광현황 파일 정광품위 시트 Pb(ton)열 순번 메겨주는 매크로
+    
+    Dim vRow As Long
+    Dim vValueR As String
+    Dim vLastRow As Long
+    
+        Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        For vRow = 3 To 1500
+        
+            vValueR = Worksheets(strSheetName).Cells(vRow, 7).Value
+            
+            If vValueR = "0" Or vValueR = vbNullString Then
+            
+                vLastRow = vRow
+                
+                Exit For
+                
+            End If
+            
+        Next vRow
+            
+        Range("I3:I4").Select
+        Selection.AutoFill Destination:=Range("I3:I" & vLastRow), Type:=xlFillDefault
+        Range("I3:I" & vLastRow).Select
+        
+End Sub
+
+Sub PasteRowColumnSwitch(strFileName1, strSheetName1, strFileName2, strSheetName2, CopyRow, PasteCell)
+'하역현황에서 조업부서파일로 행열전환해서 복사해주는 매크로
+
+    Workbooks(strFileName1).Sheets(strSheetName1).Activate
+    '하역현황에서 값 복사
+    
+        Cells.Select
+        Selection.Copy
+        Range("A1").Select
+        Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+            :=False, Transpose:=False
+    
+         Rows(CopyRow).Select
+         Selection.Copy
+
+   Workbooks(strFileName2).Sheets(strSheetName2).Activate
+   '조업부서운송현황 파일로 행열 전환해서 붙혀넣기
+   
+        Range(PasteCell).Select
+        Selection.PasteSpecial Paste:=xlPasteAll, Operation:=xlNone, SkipBlanks:= _
+            False, Transpose:=True
+            
+
+End Sub
+
+
+Sub InsertOperationData(strFileName, strSheetName)
+'조업부서운송현황 결과값을 정렬하는 매크로
+    Dim vColumn As Long
+    Dim vRow1 As Long
+    Dim vRow2 As Long
+    Dim vValueDMT As String
+    Dim vValueSEQ As String
+    Dim vValuePaste As String
+    
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+                   
+        For vRow1 = 3 To 100
+            
+            vValueSEQ = Worksheets(strSheetName).Cells(vRow1, 9).Value
+            vValueDMT = Worksheets(strSheetName).Cells(vRow1, 10).Value
+            '하역현황(Pb) 값 9열(SEQ), 10열(DMT) 값을 가져와서
+
+            If vValueSEQ <> "0" And vValueSEQ <> vbNullString Then
+                
+                For vRow2 = 3 To 100
+                    
+                    vValuePaste = Worksheets(strSheetName).Cells(vRow2, 3).Value
+                    
+                    If vValuePaste = vbNullString Then
+                        
+                        Worksheets(strSheetName).Cells(vRow2, 3).Value = vValueSEQ
+                        Worksheets(strSheetName).Cells(vRow2, 4).Value = vValueDMT
+                        '3열 4열로 복사(3열 해당행의 셀이 비어있는 경우 복사)
+                        
+                        Exit For
+                        
+                    End If
+                
+                Next vRow2
+                
+            End If
+            
+        Next vRow1
+        
+        For vRow1 = 3 To 100
+            
+            vValueSEQ = Worksheets(strSheetName).Cells(vRow1, 16).Value
+            vValueDMT = Worksheets(strSheetName).Cells(vRow1, 17).Value
+            '하역현황(Ag) 값 16열(SEQ), 17열(DMT) 값을 가져와서
+
+            If vValueSEQ <> "0" And vValueSEQ <> vbNullString Then
+                
+                For vRow2 = 3 To 100
+                    
+                    vValuePaste = Worksheets(strSheetName).Cells(vRow2, 3).Value
+                    
+                    If vValuePaste = vbNullString Then
+                        
+                        Worksheets(strSheetName).Cells(vRow2, 3).Value = vValueSEQ
+                        Worksheets(strSheetName).Cells(vRow2, 4).Value = vValueDMT
+                        '3열 4열로 복사(3열 해당행의 셀이 비어있는 경우 복사)
+                        
+                        Exit For
+                        
+                    End If
+                
+                Next vRow2
+                
+            End If
+            
+        Next vRow1
+        
+
+End Sub
+
+Sub InsertCode(strFileName1, strSheetName1, strFileName2, strSheetName2)
+'kz연정광과 조업부서운송현황(SEQ값) 비교하여 일치하는 경우 광종값과 code값을 가져와서 조업부서운송현황 파일에 붙혀넣는다.
+
+    Dim vColumn As Long
+    Dim vRow1 As Long
+    Dim vRow2 As Long
+    Dim vValueSEQ As String
+    Dim vValueSEQKZ As String
+    Dim vValueCodeKZ As String
+    Dim vValueQualityKZ As String
+                   
+    For vRow1 = 3 To 100
+        
+        Workbooks(strFileName1).Sheets(strSheetName1).Activate
+        
+        vValueSEQ = Worksheets(strSheetName1).Cells(vRow1, 3).Value
+        '조업부서운송현황 파일 SEQ 번호 가져온다
+        
+        If vValueSEQ = vbNullString Then
+            
+            Exit Sub
+            
+        End If
+        
+        Workbooks(strFileName2).Sheets(strSheetName2).Activate
+        
+        For vRow2 = 3 To 1500
+            
+            vValueSEQKZ = Worksheets(strSheetName2).Cells(vRow2, 6).Value
+            vValueQualityKZ = Worksheets(strSheetName2).Cells(vRow2, 5).Value
+            'KZ연정광현황 파일 SEQ번호, 광종값 가져온다.
+            
+            If vValueSEQKZ = vbNullString Then
+                
+                Exit For
+                
+            End If
+            
+            vValueCodeKZ = Worksheets(strSheetName2).Cells(vRow2, 4).Value
+            'KZ연정광현황 파일 Code값 가져온다.
+            
+            If vValueSEQ = vValueSEQKZ Then
+            '조업부서운송현황 SEQ 값과, KZ연정광 SEQ 값이 같은 경우
+            
+                Workbooks(strFileName1).Sheets(strSheetName1).Activate
+                
+                Worksheets(strSheetName1).Cells(vRow1, 5).Value = vValueQualityKZ
+                Worksheets(strSheetName1).Cells(vRow1, 6).Value = vValueCodeKZ
+                '각 값을 조업부서 운송현황에 붙혀넣는다.
+                
+                Exit For
+                
+            End If
+            
+        Next vRow2
+            
+        
+    Next vRow1
+End Sub
+
+Sub ReceiveLoadCheck(strFileName1, strSheetName1, strFileName2, strSheetName2, lastRow)
+'조업부서운송현황 파일 SEQ번호와 KZ연정광 파일 SEQ 번호 비교하여 일치하면 하역현황에 "o" 체크
+
+    Dim vColumn As Long
+    Dim vRow1 As Long
+    Dim vRow2 As Long
+    Dim vValueSEQ As String
+    Dim vValueSEQKZ As String
+    Dim vValueReceive As String
+    Dim vValueQualityKZ As String
+    
+    For vRow1 = 3 To lastRow
+            
+        Workbooks(strFileName1).Sheets(strSheetName1).Activate
+        
+        vValueSEQ = Worksheets(strSheetName1).Cells(vRow1, 6).Value
+        vValueReceive = Worksheets(strSheetName1).Cells(vRow1, 19).Value
+        'SEQ번호와 하역현황 값을 가져온다
+        
+        If vValueSEQ <> vbNullString And vValueReceive <> "o" Then
+        'SEQ번호가 빈값이 아니고, 하역현황이 "o"가 아닐때
+        
+            Workbooks(strFileName2).Sheets(strSheetName2).Activate
+        
+            For vRow2 = 3 To 150
+                
+                vValueSEQKZ = Worksheets(strSheetName2).Cells(vRow2, 3).Value
+                
+                If vValueSEQ = vValueSEQKZ Then
+                '조업부서 운송현황 SEQ번호와 KZ연정광 SEQ번호가 같을때
+                
+                    Workbooks(strFileName1).Sheets(strSheetName1).Activate
+                    
+                    Worksheets(strSheetName1).Cells(vRow1, 19).Value = "o"
+                    '해당 건 하역현황에 "o" 표시
+                    
+                    Exit For
+                    
+                ElseIf vValueSEQKZ = vbNullString Then
+                'SEQ값이 빈값이면 loop break
+                
+                    Exit For
+                    
+                End If
+                
+            Next vRow2
+            
+        End If
+            
+    Next vRow1
+    
+End Sub
+
+Sub ReplaceString(strFileName, strSheetName, replaceStr, replacementStr)
+    
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+    
+    Cells.Replace What:=replaceStr, Replacement:=replacementStr, LookAt:=xlPart, SearchOrder _
+    :=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False _
+    , FormulaVersion:=xlReplaceFormula2
+    
+
+End Sub
+
+Sub EditConnection(strFileName, strSheetName, EditFilePath)
+'연결편집 해제
+
+    Workbooks(strFileName).Sheets(strSheetName).Activate
+    
+    ActiveWorkbook.ChangeLink Name:="KZ 연정광 현황_template.xlsx", NewName:=EditFilePath & strFileName, Type:=xlExcelLinks
+
+
+End Sub
+
+Sub OperationInsert1(strFileName1, strSheetName1, strFileName2, strSheetName2)
+'조업부서 운송현황 > kz 연정광 현황 입력 매크로 code C(은정광), B, P, L 경우
+    
+    Dim vRow1 As Long
+    Dim vRow2 As Long
+    Dim vValueCode As String
+    Dim vValueDMT As String
+    Dim vValueQuality As String
+    Dim vValueSEQ As String
+    Dim vValueKZ As String
+    
+    
+    
+    For vRow1 = 3 To 100
+        
+        Workbooks(strFileName1).Sheets(strSheetName1).Activate
+        
+        vValueQuality = Worksheets(strSheetName1).Cells(vRow1, 2).Value
+        vValueSEQ = Worksheets(strSheetName1).Cells(vRow1, 3).Value
+        vValueDMT = Worksheets(strSheetName1).Cells(vRow1, 4).Value
+        vValueCode = Worksheets(strSheetName1).Cells(vRow1, 6).Value
+        
+        If vValueCode = "B" Or vValueCode = "P" Then
+        '조업부서운송현황에서 읽은 code값이 B나P인 경우
+        
+            If vValueDMT <> "0" Then
+            'DMT 값이 0이 아닌 경우
+            
+                Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                
+                For vRow2 = 27 To 41
+                    
+                    vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                    
+                    If vValueKZ = vbNullString Then
+                    '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                    
+                        Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                        Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSEQ
+                        Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                        '광종, SEQ번호, DMT값 입력
+                        
+                        Exit For
+                        
+                    End If
+                    
+                Next vRow2
+                
+            End If
+            
+        ElseIf vValueCode = "L" Then
+        '조업부서운송현황에서 읽은 code값이 L인 경우
+        
+            If vValueDMT <> "0" Then
+            'DMT 값이 0이 아닌 경우
+            
+                Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                
+                For vRow2 = 88 To 97
+                    
+                    vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                    
+                    If vValueKZ = vbNullString Then
+                    '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                    
+                        Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                        Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSEQ
+                        Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                        '광종, SEQ번호, DMT값 입력
+                        
+                        Exit For
+                        
+                    End If
+                    
+                Next vRow2
+                
+            End If
+            
+        ElseIf vValueCode = "C" Then
+        '조업부서운송현황에서 읽은 code값이 C인 경우
+        
+            If vValueDMT <> "0" Then
+            'DMT 값이 0이 아닌 경우
+            
+                If vValueQuality = "Cajamarquilla" Then
+                'Code C인데 은정광으로 분류해야하는 건 입력 더있으면 추가할 것
+                
+                    Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                    
+                    For vRow2 = 123 To 130
+                        
+                        vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                        
+                        If vValueKZ = vbNullString Then
+                        '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                            Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSEQ
+                            Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                            '광종, SEQ번호, DMT값 입력
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                    
+                End If
+                
+            End If
+            
+            
+        End If
+        
+    Next vRow1
+
+End Sub
+
+Sub OperationInsert2(strFileName1, strSheetName1, strFileName2, strSheetName2, quality, startRow, endRow)
+'조업부서 운송현황 > kz 연정광 현황 입력 매크로 code C(은정광 제외)
+    
+    Dim vRow1 As Long
+    Dim vRow2 As Long
+    Dim vValueDMT As String
+    Dim vValueQuality As String
+    Dim vValueSEQ As String
+    Dim vValueKZ As String
+    
+    For vRow1 = 3 To 100
+        
+        Workbooks(strFileName1).Sheets(strSheetName1).Activate
+        
+        vValueQuality = Worksheets(strSheetName1).Cells(vRow1, 2).Value
+        vValueSEQ = Worksheets(strSheetName1).Cells(vRow1, 3).Value
+        vValueDMT = Worksheets(strSheetName1).Cells(vRow1, 4).Value
+        vValueCode = Worksheets(strSheetName1).Cells(vRow1, 6).Value
+        
+        If quality = vValueQuality Then
+        '광종값이 같은경우
+        
+            If vValueDMT <> "0" Then
+            'DMT값이 0이 아닌 경우
+            
+                Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                
+                For vRow2 = startRow To endRow
+                    
+                    vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 20).Value
+                    
+                    If vValueKZ = vbNullString Then
+                    '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                    
+                        Worksheets(strSheetName2).Cells(vRow2, 20).Value = vValueQuality
+                        Worksheets(strSheetName2).Cells(vRow2, 21).Value = vValueSEQ
+                        Worksheets(strSheetName2).Cells(vRow2, 22).Value = vValueDMT
+                        '광종 SEQ, DMT 값 입력
+                        
+                        Exit For
+                        
+                    End If
+                    
+                Next vRow2
+                
+            End If
+            
+            
+        End If
+        
+    Next vRow1
+
+End Sub
+
+Sub GetOperationData(strFileName, strSheetName)
+'조업부서 운송현황 code가 C(은정광 제외) 광종들을 담아 clipboard에 넘긴다.
+    
+    Dim vRow1 As Long
+    Dim vCount As Long
+    Dim vValueCode As String
+    Dim vValueDMT As String
+    Dim vValueQuality As String
+    Dim vClipBoard As String
+    Dim CB As Object
+
+    Set CB = CreateObject("new:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
+    
+    For vRow1 = 3 To 100
+        
+        Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        vValueQuality = Worksheets(strSheetName).Cells(vRow1, 2).Value
+        vValueDMT = Worksheets(strSheetName).Cells(vRow1, 4).Value
+        vValueCode = Worksheets(strSheetName).Cells(vRow1, 6).Value
+        
+        If vValueCode = "C" Then
+        'code가 C인 경우
+        
+            If vValueDMT <> "0" Then
+            'DMT가 0이 아닌 경우
+            
+                If vValueQuality <> "Cajamarquilla" Then
+                'Code C인데 은정광으로 분류해야하는 건 입력 더있으면 추가할 것
+                'Cajamarquilla가 아닌 경우 해당 광종값을 변수에 담는다.
+                    
+                    If vClipBoard = vbNullString Then
+                    
+                        vClipBoard = vValueQuality & "/"
+                        
+                    Else
+                        
+                        If InStr(vClipBoard, vValueQuality & "/") Then
+                        
+                        
+                        Else
+                        
+                            vClipBoard = vClipBoard & vValueQuality & "/"
+                        
+                        End If
+                        
+                    End If
+                    
+                End If
+            
+            End If
+            
+        End If
+        
+        If vValueDMT = vbNullString Then
+            
+            CB.Clear
+            On Error Resume Next
+            CB.SetText vClipBoard
+            CB.PutInClipBoard
+            '클립보드에 저장
+            
+            Exit Sub
+            
+        End If
+        
+    Next vRow1
+    
+End Sub
+
+Sub InsertKZQuality(strFileName, strSheetName1, strSheetName2)
+'KZ연정광현황 정광품위 시트 SEQ번호 부여됐지만 하역입고가 안된 건들 code에 따라 m월 n주 시트로 복사
+    
+    Dim vRow1 As Long
+    Dim vRow2 As Long
+    Dim vValueETA As String
+    Dim vValueCode As String
+    Dim vValueQuality As String
+    Dim vValueSEQ As String
+    Dim vValueDMT As String
+    Dim vValueReceive As String
+    Dim vValueKZ As String
+    Dim RegEx As Object
+    Dim Matches As Variant
+    
+    '정규표현식 : 영문자가 포함 판별
+    Set RegEx = CreateObject("VBScript.RegExp")
+    RegEx.Pattern = "[a-zA-Z]"
+    RegEx.Global = True
+    
+    For vRow1 = 3 To 1500
+        
+        Workbooks(strFileName).Sheets(strSheetName1).Activate
+        
+        vValueDMT = Worksheets(strSheetName1).Cells(vRow1, 7).Value
+        
+        If vValueDMT = "0" Or vValueDMT = vbNullString Then
+        'DMT 값이 0이거나 빈값인 경우 sub 종료
+        
+            Exit Sub
+            
+        End If
+        
+        vValueQuality = Worksheets(strSheetName1).Cells(vRow1, 5).Value
+        
+        vValueETA = Worksheets(strSheetName1).Cells(vRow1, 1).Value
+        vValueCode = Worksheets(strSheetName1).Cells(vRow1, 4).Value
+        vValueSEQ = Worksheets(strSheetName1).Cells(vRow1, 6).Value
+        vValueDMT = Worksheets(strSheetName1).Cells(vRow1, 7).Value
+        vValueReceive = Worksheets(strSheetName1).Cells(vRow1, 19).Value
+        'ETA, Code, SEQ, DMT, 하역여부 를 가져온다
+        
+        Set Matches = RegEx.Execute(vValueSEQ)
+        
+        
+        
+        If vValueReceive <> "o" And vValueSEQ <> vbNullString And Matches.Count = 0 Then
+        '하역현황이 "o"가 아니고 SEQ번호가 빈값이 아니고 SEQ번호 값에 영문이 포함되지 않는 경우
+        
+            If vValueCode = "B" Or vValueCode = "P" Then
+            'code값이 B나 P인 경우
+            
+                Workbooks(strFileName).Sheets(strSheetName2).Activate
+                
+                For vRow2 = 44 To 58
+                    
+                    vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                    
+                    If vValueKZ = vbNullString Then
+                    '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                    
+                        Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                        Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSEQ
+                        Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                        Worksheets(strSheetName2).Cells(vRow2, 5).Value = vValueETA
+                        
+                        Exit For
+                        
+                    End If
+                    
+                Next vRow2
+                
+            ElseIf vValueCode = "C" Then
+            'code값이 C인 경우
+            
+                Workbooks(strFileName).Sheets(strSheetName2).Activate
+                
+                If vValueQuality = "Cajamarquilla" Then
+                    
+                    For vRow2 = 132 To 139
+                    
+                        vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                        
+                        If vValueKZ = vbNullString Then
+                        '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                            Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSEQ
+                            Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                            Worksheets(strSheetName2).Cells(vRow2, 5).Value = vValueETA
+                            
+                            Exit For
+                            
+                        End If
+                    
+                    Next vRow2
+                    
+                Else
+                
+                    For vRow2 = 119 To 130
+                    
+                    vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 20).Value
+                    
+                        If vValueKZ = vbNullString Then
+                        '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 20).Value = vValueQuality
+                            Worksheets(strSheetName2).Cells(vRow2, 21).Value = vValueSEQ
+                            Worksheets(strSheetName2).Cells(vRow2, 22).Value = vValueDMT
+                            Worksheets(strSheetName2).Cells(vRow2, 23).Value = vValueETA
+                            
+                            Exit For
+                            
+                        End If
+                    
+                    Next vRow2
+                
+                End If
+                
+            ElseIf vValueCode = "L" Then
+            'code값이 L인 경우
+            
+                Workbooks(strFileName).Sheets(strSheetName2).Activate
+                
+                For vRow2 = 99 To 108
+                    
+                    vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                    
+                    If vValueKZ = vbNullString Then
+                    '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                    
+                        Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                        Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSEQ
+                        Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                        Worksheets(strSheetName2).Cells(vRow2, 5).Value = vValueETA
+                        
+                        Exit For
+                        
+                    End If
+                    
+                Next vRow2
+                
+            End If
+              
+        End If
+        
+    Next vRow1
+    
+End Sub
+
+Sub InsertDelivery(strFileName1, strSheetName1, strFileName2, strSheetName2, thisMonth, nextMonth, afterNextMonth, today)
+'DeliverySchedule 파일 > KZ 연정광 현황 파일로 복사 code B,C,L,Ag로 구분하여 입력(m월 n주 시트로 각각 다른 위치에 복사한다)
+
+    Dim vRow1 As Long
+    Dim vRow2 As Long
+    Dim vValueCode As String
+    Dim vValueVessel As String
+    Dim vValueQuality As String
+    Dim vValueSeller As String
+    Dim vValueDMT As String
+    Dim vValueETA As String
+    Dim vValueKZ As String
+    Dim arrETA() As String
+    
+    For vRow1 = 2 To 300
+        
+        Workbooks(strFileName1).Sheets(strSheetName1).Activate
+        
+        vValueCode = Worksheets(strSheetName1).Cells(vRow1, 1).Value
+        
+        If vValueCode = vbNullString Then
+        
+            Exit Sub
+            
+        End If
+        
+        vValueVessel = Worksheets(strSheetName1).Cells(vRow1, 2).Value
+        vValueQuality = Worksheets(strSheetName1).Cells(vRow1, 5).Value
+        vValueSeller = Worksheets(strSheetName1).Cells(vRow1, 6).Value
+        vValueDMT = Worksheets(strSheetName1).Cells(vRow1, 7).Value
+        vValueETA = Worksheets(strSheetName1).Cells(vRow1, 8).Value
+        
+        If vValueCode = "B" Then
+        'code = B 인 경우 =======================================================================
+        
+            If InStr(vValueETA, "/") Then
+            'ETA = mm/dd 형식인 경우 =======================================================================
+            
+                arrETA() = Split(vValueETA, "/")
+                
+                If arrETA(0) = thisMonth Then
+                    
+                    Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                                        
+                    For vRow2 = 44 To 58
+                        
+                        vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                        
+                        If vValueKZ = vbNullString Then
+                        '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                            Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSeller
+                            Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                            Worksheets(strSheetName2).Cells(vRow2, 5).Value = vValueETA
+                            Worksheets(strSheetName2).Cells(vRow2, 16).Value = vValueVessel
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                    
+                ElseIf arrETA(0) = nextMonth Then
+                    
+                    Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                                        
+                    For vRow2 = 60 To 74
+                        
+                        vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                        
+                        If vValueKZ = vbNullString Then
+                        '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                            Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSeller
+                            Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                            Worksheets(strSheetName2).Cells(vRow2, 5).Value = vValueETA
+                            Worksheets(strSheetName2).Cells(vRow2, 16).Value = vValueVessel
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                    
+                ElseIf arrETA(0) = afterNextMonth Then
+                    
+                    Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                                        
+                    For vRow2 = 76 To 85
+                        
+                        vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                        
+                        If vValueKZ = vbNullString Then
+                        '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                            Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSeller
+                            Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                            Worksheets(strSheetName2).Cells(vRow2, 5).Value = vValueETA
+                            Worksheets(strSheetName2).Cells(vRow2, 16).Value = vValueVessel
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                    
+                End If
+                                            
+            ElseIf InStr(vValueETA, "월") Then
+            'ETA = mm월n주 형식인 경우 =======================================================================
+            
+            arrETA() = Split(vValueETA, "월")
+                
+                If arrETA(0) = thisMonth Then
+                    
+                    Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                                        
+                    For vRow2 = 44 To 58
+                        
+                        vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                        
+                        If vValueKZ = vbNullString Then
+                        '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                            Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSeller
+                            Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                            Worksheets(strSheetName2).Cells(vRow2, 5).Value = vValueETA
+                            Worksheets(strSheetName2).Cells(vRow2, 16).Value = vValueVessel
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                    
+                ElseIf arrETA(0) = nextMonth Then
+                    
+                    Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                                        
+                    For vRow2 = 60 To 74
+                        
+                        vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                        
+                        If vValueKZ = vbNullString Then
+                        '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                            Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSeller
+                            Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                            Worksheets(strSheetName2).Cells(vRow2, 5).Value = vValueETA
+                            Worksheets(strSheetName2).Cells(vRow2, 16).Value = vValueVessel
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                    
+                ElseIf arrETA(0) = afterNextMonth Then
+                    
+                    Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                                        
+                    For vRow2 = 76 To 85
+                        
+                        vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                        
+                        If vValueKZ = vbNullString Then
+                        '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                            Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSeller
+                            Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                            Worksheets(strSheetName2).Cells(vRow2, 5).Value = vValueETA
+                            Worksheets(strSheetName2).Cells(vRow2, 16).Value = vValueVessel
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                    
+                End If
+            
+            End If
+            
+        ElseIf vValueCode = "C" Then
+        'code = C 인 경우 =======================================================================
+        
+            If InStr(vValueETA, "/") Then
+                
+                arrETA() = Split(vValueETA, "/")
+                
+                If arrETA(0) < thisMonth Or (arrETA(0) = thisMonth And arrETA(1) <= today) Then
+                
+                    Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                    
+                    For vRow2 = 119 To 130
+                        
+                        vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 20).Value
+                        
+                        If vValueKZ = vbNullString Then
+                        '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 20).Value = vValueQuality
+                            Worksheets(strSheetName2).Cells(vRow2, 21).Value = vValueSeller
+                            Worksheets(strSheetName2).Cells(vRow2, 22).Value = vValueDMT
+                            Worksheets(strSheetName2).Cells(vRow2, 23).Value = vValueETA
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                
+                Else
+                
+                    Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                    
+                For vRow2 = 132 To 185
+                    
+                    vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 20).Value
+                    
+                    If vValueKZ = vbNullString Then
+                    '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                    
+                        Worksheets(strSheetName2).Cells(vRow2, 20).Value = vValueQuality
+                        Worksheets(strSheetName2).Cells(vRow2, 21).Value = vValueSeller
+                        Worksheets(strSheetName2).Cells(vRow2, 22).Value = vValueDMT
+                        Worksheets(strSheetName2).Cells(vRow2, 23).Value = vValueETA
+                        
+                        Exit For
+                        
+                    End If
+                    
+                Next vRow2
+                
+                End If
+                
+            Else
+                
+                arrETA() = Split(vValueETA, "월")
+                
+                If arrETA(0) < thisMonth And arrETA(0) <> afterNextMonth And arrETA(0) <> nextMonth Then
+                
+                    Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                    
+                    For vRow2 = 119 To 130
+                        
+                        vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 20).Value
+                        
+                        If vValueKZ = vbNullString Then
+                        '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                        
+                            Worksheets(strSheetName2).Cells(vRow2, 20).Value = vValueQuality
+                            Worksheets(strSheetName2).Cells(vRow2, 21).Value = vValueSeller
+                            Worksheets(strSheetName2).Cells(vRow2, 22).Value = vValueDMT
+                            Worksheets(strSheetName2).Cells(vRow2, 23).Value = vValueETA
+                            
+                            Exit For
+                            
+                        End If
+                        
+                    Next vRow2
+                
+                Else
+                
+                    Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                    
+                    For vRow2 = 132 To 185
+                    
+                        vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 20).Value
+                    
+                        If vValueKZ = vbNullString Then
+                        
+                        If vValueSeller = "0" Then
+                            vValueSeller = vbNullString
+                        End If
+                        
+                        Worksheets(strSheetName2).Cells(vRow2, 20).Value = vValueQuality
+                        Worksheets(strSheetName2).Cells(vRow2, 21).Value = vValueSeller
+                        Worksheets(strSheetName2).Cells(vRow2, 22).Value = vValueDMT
+                        Worksheets(strSheetName2).Cells(vRow2, 23).Value = vValueETA
+                        
+                        Exit For
+                            
+                        End If
+                    
+                    Next vRow2
+                
+                End If
+                                
+                
+                
+            End If
+            
+        ElseIf vValueCode = "L" Then
+        'code = L 인 경우 =======================================================================
+        
+            Workbooks(strFileName2).Sheets(strSheetName2).Activate
+            
+            For vRow2 = 99 To 108
+                
+                vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                
+                If vValueKZ = vbNullString Then
+                '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                
+                    Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                    Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSeller
+                    Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                    Worksheets(strSheetName2).Cells(vRow2, 5).Value = vValueETA
+                    
+                    Exit For
+                    
+                End If
+                
+            Next vRow2
+                 
+        ElseIf vValueCode = "Ag" Then
+        'code = Ag 인 경우 =======================================================================
+        
+            Workbooks(strFileName2).Sheets(strSheetName2).Activate
+            
+            For vRow2 = 132 To 139
+                
+                vValueKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                
+                If vValueKZ = vbNullString Then
+                '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                
+                    Worksheets(strSheetName2).Cells(vRow2, 2).Value = vValueQuality
+                    Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSeller
+                    Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueDMT
+                    Worksheets(strSheetName2).Cells(vRow2, 5).Value = vValueETA
+                    
+                    Exit For
+                    
+                End If
+                
+            Next vRow2
+
+        End If
+        
+    Next vRow1
+
+End Sub
+
+Sub InsertTeam1(strFileName1, strSheetName1, strFileName2, strSheetName2)
+'저광사현황 제련1팀 > KZ연정광 m월 n주 시트 입력 매크로
+
+    Dim vRow1 As Long
+    Dim vRow2 As Long
+    Dim vValueBunker As String
+    Dim vValueQuality As String
+    Dim vValueSEQ As String
+    Dim vValueCode As String
+    Dim vValueWMT As String
+    Dim vValueQualityKZ As String
+    
+    For vRow1 = 6 To 21
+        
+        Workbooks(strFileName1).Sheets(strSheetName1).Activate
+        
+        vValueBunker = Worksheets(strSheetName1).Cells(vRow1, 1).Value
+        vValueQuality = Worksheets(strSheetName1).Cells(vRow1, 2).Value
+        vValueSEQ = Worksheets(strSheetName1).Cells(vRow1, 3).Value
+        vValueCode = Worksheets(strSheetName1).Cells(vRow1, 4).Value
+        vValueWMT = Worksheets(strSheetName1).Cells(vRow1, 5).Value
+        
+        If vValueBunker = "Pb Residue" Then
+        '값이 "Pb Residue"인 경우
+        
+            Workbooks(strFileName2).Sheets(strSheetName2).Activate
+            
+            Worksheets(strSheetName2).Cells(145, 4).Value = vValueWMT
+            
+        ElseIf vValueBunker = "연정광 잔사" Then
+        '값이 "연정광 잔사"인 경우
+            Workbooks(strFileName2).Sheets(strSheetName2).Activate
+            
+            Worksheets(strSheetName2).Cells(145, 10).Value = vValueWMT
+            
+        ElseIf vValueQuality <> vbNullString Then
+        '값이 빈값인 경우 읽고 있는 row - 1 에서 값을 읽어온다
+        
+            If vValueBunker = vbNullString Then
+                
+                vValueBunker = Worksheets(strSheetName1).Cells(vRow1 - 1, 1).Value
+                 
+            End If
+            
+            If vValueCode = "B" Then
+                'code = B인경우
+                
+                Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                
+                For vRow2 = 5 To 14
+                
+                    vValueQualityKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                    
+                    If vValueQualityKZ = vbNullString Then
+                    '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                    
+                        Worksheets(strSheetName2).Cells(vRow2, 2).Value = "#" & vValueBunker & " " & vValueQuality
+                        Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSEQ
+                        Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueWMT
+                        
+                        Exit For
+                        
+                    End If
+                    
+                Next vRow2
+                    
+            Else
+                'code = C인경우
+                
+                Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                
+                For vRow2 = 5 To 14
+                
+                    vValueQualityKZ = Worksheets(strSheetName2).Cells(vRow2, 20).Value
+                    
+                    If vValueQualityKZ = vbNullString Then
+                    '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                    
+                        Worksheets(strSheetName2).Cells(vRow2, 20).Value = "#" & vValueBunker & " " & vValueQuality
+                        Worksheets(strSheetName2).Cells(vRow2, 21).Value = vValueSEQ
+                        Worksheets(strSheetName2).Cells(vRow2, 22).Value = vValueWMT
+                        
+                        Exit For
+                        
+                    End If
+                    
+                Next vRow2
+                    
+            End If
+            
+        End If
+        
+   Next vRow1
+   
+End Sub
+
+
+Sub InsertTeam2(strFileName1, strSheetName1, strFileName2, strSheetName2)
+'저광사현황 제련2팀 입력 매크로
+    Dim vRow1 As Long
+    Dim vRow2 As Long
+    Dim vValueBunker As String
+    Dim vValueQuality As String
+    Dim vValueSEQ As String
+    Dim vValueCode As String
+    Dim vValueWMT As String
+    Dim vValueQualityKZ As String
+    
+    For vRow1 = 6 To 21
+        
+        Workbooks(strFileName1).Sheets(strSheetName1).Activate
+        
+        vValueBunker = Worksheets(strSheetName1).Cells(vRow1, 6).Value
+        vValueQuality = Worksheets(strSheetName1).Cells(vRow1, 7).Value
+        vValueSEQ = Worksheets(strSheetName1).Cells(vRow1, 8).Value
+        vValueCode = Worksheets(strSheetName1).Cells(vRow1, 9).Value
+        vValueWMT = Worksheets(strSheetName1).Cells(vRow1, 10).Value
+        
+        If vValueBunker = "Pb Residue" Then
+        '값이 "Pb Residue"인 경우
+        
+            Workbooks(strFileName2).Sheets(strSheetName2).Activate
+            
+            Worksheets(strSheetName2).Cells(146, 4).Value = vValueWMT
+            
+        ElseIf vValueBunker = "연정광 잔사" Then
+        '값이 "연정광 잔사"인 경우
+        
+            Workbooks(strFileName2).Sheets(strSheetName2).Activate
+            
+            Worksheets(strSheetName2).Cells(146, 10).Value = vValueWMT
+            
+        ElseIf vValueQuality <> vbNullString Then
+        '값이 빈값인 경우 읽고 있는 row - 1 에서 값을 읽어온다
+        
+            If vValueBunker = vbNullString Then
+                
+                vValueBunker = Worksheets(strSheetName1).Cells(vRow1 - 1, 6).Value
+                    
+            End If
+            
+            If vValueCode = "B" Then
+                'code = B인경우
+                
+                Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                
+                For vRow2 = 16 To 25
+                
+                    vValueQualityKZ = Worksheets(strSheetName2).Cells(vRow2, 2).Value
+                    
+                    If vValueQualityKZ = vbNullString Then
+                    '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                    
+                        Worksheets(strSheetName2).Cells(vRow2, 2).Value = "#" & vValueBunker & " " & vValueQuality
+                        Worksheets(strSheetName2).Cells(vRow2, 3).Value = vValueSEQ
+                        Worksheets(strSheetName2).Cells(vRow2, 4).Value = vValueWMT
+                        
+                        Exit For
+                        
+                    End If
+                    
+                Next vRow2
+            Else
+            'code = C인경우
+                
+                Workbooks(strFileName2).Sheets(strSheetName2).Activate
+                
+                For vRow2 = 16 To 25
+                
+                    vValueQualityKZ = Worksheets(strSheetName2).Cells(vRow2, 20).Value
+                    
+                    If vValueQualityKZ = vbNullString Then
+                    '해당셀에 중복 입력을 막기위해 입력위치에 값이 존재 하는지 확인
+                    
+                        Worksheets(strSheetName2).Cells(vRow2, 20).Value = "#" & vValueBunker & " " & vValueQuality
+                        Worksheets(strSheetName2).Cells(vRow2, 21).Value = vValueSEQ
+                        Worksheets(strSheetName2).Cells(vRow2, 22).Value = vValueWMT
+                        
+                        Exit For
+                        
+                    End If
+                    
+                Next vRow2
+                    
+            End If
+        End If
+        
+   Next vRow1
+   
+End Sub
+
+Sub FixErrorBulk(strFileName, strSheetName, startRow, endRow)
+'KZ연정광 m월n주 시트 bulk구역 오류 수식 변경
+    
+    Dim vRow As Long
+    Dim vValueQuality As String
+    Dim vPb As String
+    Dim vCu As String
+    Dim vAg As String
+    Dim vAu As String
+    Dim vSb As String
+    
+    For vRow = startRow To endRow
+    
+        Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        vValueQuality = Worksheets(strSheetName).Cells(vRow, 2).Value
+        
+        If vValueQuality <> vbNullString Then
+            
+            vPb = Worksheets(strSheetName).Cells(vRow, 6).DisplayFormat.Interior.ColorIndex
+            vCu = Worksheets(strSheetName).Cells(vRow, 8).DisplayFormat.Interior.ColorIndex
+            vAg = Worksheets(strSheetName).Cells(vRow, 10).DisplayFormat.Interior.ColorIndex
+            vAu = Worksheets(strSheetName).Cells(vRow, 12).DisplayFormat.Interior.ColorIndex
+            vSb = Worksheets(strSheetName).Cells(vRow, 14).DisplayFormat.Interior.ColorIndex
+            'KZ연정광 m월n주 시트 Pb,Cu,Ag,Au,Sb 셀 배경색 가져오기
+            
+            If vPb = 3 Or vPb = 44 Then
+            '셀 배경색이 빨강 or 주황 인 경우
+            
+                Worksheets(strSheetName).Cells(158, 6).Copy
+                Worksheets(strSheetName).Cells(vRow, 6).Select
+                ActiveSheet.Paste
+                '기본 수식 가져와서 해당셀에 붙혀넣기
+                    
+            End If
+            
+            If vCu = 3 Or vPb = 44 Then
+            '셀 배경색이 빨강 or 주황 인 경우
+            
+                Worksheets(strSheetName).Cells(158, 6).Copy
+                Worksheets(strSheetName).Cells(vRow, 8).Select
+                ActiveSheet.Paste
+                '기본 수식 가져와서 해당셀에 붙혀넣기
+                
+            End If
+            
+            If vAg = 3 Or vPb = 44 Then
+            '셀 배경색이 빨강 or 주황 인 경우
+            
+                Worksheets(strSheetName).Cells(158, 6).Copy
+                Worksheets(strSheetName).Cells(vRow, 10).Select
+                ActiveSheet.Paste
+                '기본 수식 가져와서 해당셀에 붙혀넣기
+                
+            End If
+            
+            If vAu = 3 Or vPb = 44 Then
+            '셀 배경색이 빨강 or 주황 인 경우
+            
+                Worksheets(strSheetName).Cells(158, 6).Copy
+                Worksheets(strSheetName).Cells(vRow, 12).Select
+                ActiveSheet.Paste
+                '기본 수식 가져와서 해당셀에 붙혀넣기
+                
+            End If
+            
+            If vSb = 3 Or vPb = 44 Then
+            '셀 배경색이 빨강 or 주황 인 경우
+            
+                Worksheets(strSheetName).Cells(158, 6).Copy
+                Worksheets(strSheetName).Cells(vRow, 14).Select
+                ActiveSheet.Paste
+                '기본 수식 가져와서 해당셀에 붙혀넣기
+                
+            End If
+                
+        ElseIf vValueQuality = vbNullString Then
+        '광종 값이 빈값이면 sub 종료
+        
+            Exit Sub
+                
+        End If
+        
+    Next vRow
+    
+End Sub
+
+Sub FixErrorContainer(strFileName, strSheetName, startRow, endRow)
+'KZ 연정광현황 파일 m월n주 시트 container영역 오류 수식 변경
+    
+    Dim vRow As Long
+    Dim vValueQuality As String
+    Dim vPb As String
+    Dim vCu As String
+    Dim vAg As String
+    Dim vAu As String
+    Dim vSb As String
+    
+    For vRow = startRow To endRow
+    
+        Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        vValueQuality = Worksheets(strSheetName).Cells(vRow, 20).Value
+        
+        If vValueQuality <> vbNullString Then
+            
+            vPb = Worksheets(strSheetName).Cells(vRow, 24).DisplayFormat.Interior.ColorIndex
+            vCu = Worksheets(strSheetName).Cells(vRow, 26).DisplayFormat.Interior.ColorIndex
+            vAg = Worksheets(strSheetName).Cells(vRow, 28).DisplayFormat.Interior.ColorIndex
+            vAu = Worksheets(strSheetName).Cells(vRow, 30).DisplayFormat.Interior.ColorIndex
+            vSb = Worksheets(strSheetName).Cells(vRow, 32).DisplayFormat.Interior.ColorIndex
+            
+            If vPb = 3 Or vPb = 44 Then
+            
+                Worksheets(strSheetName).Cells(196, 24).Copy
+                Worksheets(strSheetName).Cells(vRow, 24).Select
+                ActiveSheet.Paste
+                
+            End If
+            
+            If vCu = 3 Or vPb = 44 Then
+            
+                Worksheets(strSheetName).Cells(196, 24).Copy
+                Worksheets(strSheetName).Cells(vRow, 26).Select
+                ActiveSheet.Paste
+                
+            End If
+            
+            If vAg = 3 Or vPb = 44 Then
+            
+                Worksheets(strSheetName).Cells(196, 24).Copy
+                Worksheets(strSheetName).Cells(vRow, 28).Select
+                ActiveSheet.Paste
+                
+            End If
+            
+            If vAu = 3 Or vPb = 44 Then
+            
+                Worksheets(strSheetName).Cells(196, 24).Copy
+                Worksheets(strSheetName).Cells(vRow, 30).Select
+                ActiveSheet.Paste
+                
+            End If
+            
+            If vSb = 3 Or vPb = 44 Then
+            
+                Worksheets(strSheetName).Cells(196, 24).Copy
+                Worksheets(strSheetName).Cells(vRow, 32).Select
+                ActiveSheet.Paste
+                
+            End If
+                
+        ElseIf vValueQuality = vbNullString Then
+                
+            Exit Sub
+                
+        End If
+        
+    Next vRow
+    
+End Sub
+
+Sub DeleteCellBulk(strFileName, strSheetName, startRow, endRow)
+'KZ연정광 현황 m월n주 시트 bulk영역 빈 셀 값 지워주기
+
+    Dim vValueQuality As String
+    Dim vValueHeader As String
+    Dim vValueCheck As String
+    Dim vValueDMT As String
+    Dim vValuePb As String
+    Dim vRow As Long
+    
+    For vRow = startRow To endRow
+        
+        Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        vValueQuality = Worksheets(strSheetName).Cells(vRow, 2).Value
+        vValueHeader = Worksheets(strSheetName).Cells(vRow, 1).Value
+        vValueCheck = Worksheets(strSheetName).Cells(vRow, 18).Value
+        vValueDMT = Worksheets(strSheetName).Cells(vRow, 4).Value
+        
+        If vValueCheck = "S" Then
+        
+            Exit Sub
+        
+        End If
+        
+        If vValueQuality = vbNullString And vValueHeader = vbNullString And vValueCheck <> "N" Then
+        '광종이 빈값이고, 헤더값이 빈값이고, 체크 값이 N이 아닌 경우
+        
+            
+            Range(Cells(vRow, 1), Cells(vRow, 18)).Delete Shift:=xlUp
+            '삭제
+            
+            vRow = vRow - 1
+        
+        ElseIf vValueCheck = "N" And vValueDMT = vbNullString Then
+        '체크값이 N이고, DMT값이 빈값이면
+        
+            If IsError(Worksheets(strSheetName).Cells(vRow, 6).Value) Then
+            '해당 셀값이 에러가 발견되면
+            
+                Range(Cells(vRow, 6), Cells(vRow, 15)).ClearContents
+                '셀 비워주기
+                
+                Else
+                
+                    vValuePb = Worksheets(strSheetName).Cells(vRow, 6).Value
+                
+                
+                    If InStr(vValuePb, "품위") Then
+                    'vValuePb 변수가 "품위"를 포함하면
+                    
+                    Else
+                    
+                        Range(Cells(vRow, 6), Cells(vRow, 15)).ClearContents
+                        '삭제
+                    
+                    End If
+            
+            End If
+            
+            
+        End If
+        
+        
+    Next vRow
+    
+End Sub
+
+Sub DeleteCellContainer(strFileName, strSheetName, startRow, endRow)
+'KZ연정광 현황 m월n주 시트 container영역 빈 셀 값 지워주기
+
+    Dim vValueQuality As String
+    Dim vValueHeader As String
+    Dim vValueCheck As String
+    Dim vValueDMT As String
+    Dim vValuePb As String
+    Dim vRow As Long
+    
+    For vRow = startRow To endRow
+        
+        Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        vValueQuality = Worksheets(strSheetName).Cells(vRow, 20).Value
+        vValueHeader = Worksheets(strSheetName).Cells(vRow, 19).Value
+        
+        If IsError(Worksheets(strSheetName).Cells(vRow, 22).Value) Then
+        
+            vValueDMT = vbNullString
+            
+        Else
+            
+            vValueDMT = Worksheets(strSheetName).Cells(vRow, 22).Value
+        
+        End If
+        
+        vValueCheck = Worksheets(strSheetName).Cells(vRow, 37).Value
+        
+        If vValueCheck = "S" Then
+        
+            Exit Sub
+            
+        End If
+        
+        If vValueQuality = vbNullString And vValueHeader = vbNullString And vValueCheck <> "N" Then
+            
+            Range(Cells(vRow, 19), Cells(vRow, 37)).Delete Shift:=xlUp
+            
+            vRow = vRow - 1
+            
+        ElseIf vValueQuality = "Total" And vValueCheck = "D" Then
+            
+            Range(Cells(vRow, 19), Cells(vRow, 37)).Delete Shift:=xlUp
+            
+            vRow = vRow - 1
+            
+        ElseIf vValueCheck = "N" And vValueDMT = vbNullString Then
+            'And vValueDMT = ""
+            If IsError(Worksheets(strSheetName).Cells(vRow, 24).Value) Then
+                
+                Range(Cells(vRow, 24), Cells(vRow, 33)).ClearContents
+                
+                Else
+                
+                    vValuePb = Worksheets(strSheetName).Cells(vRow, 24).Value
+                
+                    If InStr(vValuePb, "품위") Then
+                    
+                    
+                    ElseIf InStr(vValueHeader, "이송") Then
+                    
+                    Else
+                
+                        Range(Cells(vRow, 24), Cells(vRow, 33)).ClearContents
+                        
+                
+                    End If
+            End If
+        End If
+          
+    Next vRow
+    
+End Sub
+
+Sub CheckLessThanAgAu(strFileName, strSheetName)
+'KZ연정광현황 Ag,Au열 값이  <0.1 인 경우 해당 셀에 0.01 입력
+
+    Dim vValueAg As String
+    Dim vValueAu As String
+    Dim vValueDMT As String
+    Dim vRow As Long
+    
+    For vRow = 3 To 1500
+        
+        Workbooks(strFileName).Sheets(strSheetName).Activate
+        
+        vValueAg = Worksheets(strSheetName).Cells(vRow, 12).Value
+        vValueAu = Worksheets(strSheetName).Cells(vRow, 14).Value
+        vValueDMT = Worksheets(strSheetName).Cells(vRow, 7).Value
+        
+        If vValueDMT = "0" Then
+        
+            Exit Sub
+            
+        End If
+        
+        If vValueAg = "<0.1" Then
+        '변수 값이 "<0.1" 인 경우
+           Worksheets(strSheetName).Cells(vRow, 12).Value = "0.01"
+           '해당 셀에 0.01 입력
+           
+        ElseIf vValueAu = "<0.1" Then
+        
+           Worksheets(strSheetName).Cells(vRow, 14).Value = "0.01"
+           
+        End If
+        
+    Next vRow
+    
+End Sub
+
+Sub WeekNum()
+'주차를 계산하는 매크로
+    
+    Dim vWeekNum As String
+    Dim CB As Object
+    
+    Set CB = CreateObject("new:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
+    
+    vWeekNum = DatePart("ww", Now) - DatePart("ww", Now - Day(Now) + 1) + 1
+   
+    CB.Clear
+    On Error Resume Next
+    CB.SetText vWeekNum
+    CB.PutInClipBoard
+    
+End Sub
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TMS국소배기정산
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 매출전표 전자증빙등록
+
+
 월합운임매입전표등록
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//JavaScript로 웹 그리드 값 선택 및 데이터 
+//정산 B/L List
+
+var row; 
+
+for (row = 0; row < 2801; row++) {
+ 
+	var taxType = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).TaxType;
+	var currency = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).Cur;
+	var brand = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).Brand;
+	var onboard = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).onboardate;
+    var fwdName = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).FWD;
+	
+	if ( taxType == 'HQ00' && currency == 'KRW' && brand == 'KZ' && fwdName == 'ATO') {
+		$("#partnerBkgBalGrid").jqxGrid('selectrow', row);
+	}
+
+    if ( !onboard ) {
+        $("#partnerBkgBalGrid").jqxGrid('unselectrow', row);
+    } else if ( onboard.includes('-10-') ) {
+        $("#partnerBkgBalGrid").jqxGrid('unselectrow', row);
+    }
+
+}
+
+//pid에 담을 script
+var totalRow = $('#partnerBkgBalGrid').jqxGrid('getrows').length; 
+
+for (row = 0; row < #TotalRow#; row++) { 
+	
+	var taxType = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).TaxType; 
+	var currency = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).Cur; 
+	var brand = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).Brand; 
+	var onboard = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).onboardate; 
+	var fwdName = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).FWD; 
+	
+	if ( taxType == #TaxType# && currency == #CurrencyType# && brand == #GroupName# && fwdName == #Company# ) { 
+
+		$("#partnerBkgBalGrid").jqxGrid('selectrow', row); 
+
+	} 
+	
+	if ( !onboard ) { 
+
+		$("#partnerBkgBalGrid").jqxGrid('unselectrow', row); 
+
+	} else if ( onboard.includes(#ThisMonth#) ) { 
+
+		$("#partnerBkgBalGrid").jqxGrid('unselectrow', row); 
+
+	} 
+	
+}
+
+
+// test
+
+var row; 
+
+for (row = 0; row < #TotalRow#; row++) {
+ 
+	var taxType = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).TaxType;
+	var currency = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).Cur;
+	var brand = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).Brand;
+	var onboard = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).onboardate;
+	var fwdName = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).FWD;
+	
+	if ( taxType == All && currency == #CurrencyType# && brand == #GroupName# && fwdName == #CompanyName# ) {
+		$("#partnerBkgBalGrid").jqxGrid('selectrow', row);
+	}
+
+    if ( !onboard ) {
+        $("#partnerBkgBalGrid").jqxGrid('unselectrow', row);
+    } else if ( onboard.includes(#ThisMonth#) ) {
+        $("#partnerBkgBalGrid").jqxGrid('unselectrow', row);
+    }
+
+}
+
+//test getRow
+
+var totalRow = $('#partnerBkgBalGrid').jqxGrid('getrows').length;
+
+for (row = 0; row < totalRow; row++) {
+
+	var taxType = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).TaxType;
+	var currency = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).Cur;
+	var brand = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).Brand;
+	var onboard = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).onboardate;
+	var fwdName = $('#partnerBkgBalGrid').jqxGrid('getrowdatabyid', row).FWD;
+
+	if ( taxType == All && currency == #CurrencyType# && brand == #GroupName# && fwdName == #CompanyName# ) {
+		$("#partnerBkgBalGrid").jqxGrid('selectrow', row);
+	}
+
+    if ( !onboard ) {
+        $("#partnerBkgBalGrid").jqxGrid('unselectrow', row);
+    } else if ( onboard.includes(#ThisMonth#) ) {
+        $("#partnerBkgBalGrid").jqxGrid('unselectrow', row);
+    }
+}
+
+
+//정산 B/L List
+
+
+
+//정산 Charge Item
+
+//PID 선택
+
+var totalRow = $("#chargeItemGrid").jqxGrid('getrows').length;
+
+for (row = 0; row < totalRow; row++) {
+
+	var InvoiceNum = $('#chargeItemGrid').jqxGrid('getrowdatabyid', row).DocNumber;
+
+	if ( InvoiceNum == #InvoiceNum#) {
+		
+		$("#chargeItemGrid").jqxGrid('selectrow', row);
+
+	}
+}
+
+
+//PID 선택해제
+
+var totalRow = $("#chargeItemGrid").jqxGrid('getrows').length;
+
+for (row = 0; row < totalRow; row++) {
+
+	$("#chargeItemGrid").jqxGrid('unselectrow', row);
+
+}
+
+//Test
+
+var totalRow = $("#chargeItemGrid").jqxGrid('getrows').length;
+
+for (row = 0; row < totalRow; row++) {
+
+	var InvoiceNum = $('#chargeItemGrid').jqxGrid('getrowdatabyid', row).DocNumber;
+
+	if ( InvoiceNum == 'SORIN-SUR-202201100003') {
+		$("#chargeItemGrid").jqxGrid('selectrow', row);
+
+	}
+}
+
+//정산 Charge Item
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+PB품목포지션표작성
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Sub EditPurchase(vItemCode, vFile, vResultFile, vWorkPath, pItemCode, pAmount, pOrderNum, pCurrencyAmount, pSupplyPrice)
+
+    Dim Clipboard As Object
+    ' Microsoft Forms 2.0 Object Library
+    Set Clipboard = CreateObject("new:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
+    
+    Set di = CreateObject("Scripting.Dictionary")
+    Dim arrCode() As String
+    arrCode = Split(vItemCode, "/")
+    
+    For Each vCode In arrCode()
+    
+        di.Add vCode, vCode
+    
+    Next
+    
+    'vba 실행시 에러관리위함
+    On Error GoTo ErrorCheck
+    
+    
+    Application.DisplayAlerts = False
+    
+        Workbooks.Open Filename:=vWorkPath & vResultFile
+        Workbooks.Open Filename:=vWorkPath & vFile
+        RowCount = Cells(Rows.Count, 2).End(xlUp).Row
+        
+        Workbooks(vResultFile).Activate
+        With Workbooks(vFile).ActiveSheet
+        
+            For rowNum = 2 To RowCount
+                
+                If di.exists(.Range(pItemCode & rowNum).Value) And .Range(pAmount & rowNum).Value <> 0 Then
+                    
+                    'RPA 작업대상 확인 결과파일로 복사
+                    .Range("A" & rowNum & ",C" & rowNum & ":H" & rowNum).Copy
+                    
+                    rRowCount = Cells(Rows.Count, 2).End(xlUp).Row + 1
+                    Range("A" & rRowCount).PasteSpecial xlPasteValues
+                    
+                    .Range("I" & rowNum & ":L" & rowNum).Copy
+                    Range("I" & rRowCount).PasteSpecial xlPasteValues
+                                  
+                Else
+                
+                End If
+                    
+            Next
+        
+        End With
+        
+        CalculatePurchase di, vFile, vResultFile, pItemCode, pAmount, pOrderNum, pCurrencyAmount, pSupplyPrice
+        
+        Workbooks(vFile).Close
+
+    Application.DisplayAlerts = True
+    
+ErrorCheck:
+    If Err.Number = 0 Then
+    '성공시 성공이라는 단어 클립보드에 담기
+    Clipboard.SetText "성공"
+    Clipboard.PutInClipboard
+    
+    Else
+    '실패시 실패라는 단어 클립보드에 담기
+    Clipboard.SetText "실패"
+    Clipboard.PutInClipboard
+    
+    End If
+    
+End Sub
+
+
+Sub CalculatePurchase(vItemCode, vFile, vResultFile, pItemCode, pAmount, pOrderNum, pCurrencyAmount, pSupplyPrice)
+'매입 정산건 작업 vba
+    
+    Dim Clipboard As Object
+    ' Microsoft Forms 2.0 Object Library
+    Set Clipboard = CreateObject("new:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
+    
+    Dim vCode As String
+    Dim vOrderNum As String
+    Dim vCurrencyAmount As Single
+    Dim vSupplyPrice As Single
+    Dim vDollar As Single
+    Dim vWon As Single
+        
+        'vba 실행시 에러관리위함
+        On Error GoTo ErrorCheck
+        
+        Workbooks(vResultFile).Activate
+        With Workbooks(vFile).ActiveSheet
+        
+        RowCount = .Cells(Rows.Count, 2).End(xlUp).Row
+        
+            For rowNum = 2 To RowCount
+                
+                If vItemCode.exists(.Range(pItemCode & rowNum).Value) And .Range(pAmount & rowNum).Value = 0 Then
+                    'RPA 작업대상(정산건) 확인, 결과파일로 복사
+                    
+                    vCode = .Range(pItemCode & rowNum).Value
+                    vOrderNum = .Range(pOrderNum & rowNum).Value
+                    vCurrencyAmount = .Range(pCurrencyAmount & rowNum).Value
+                    vSupplyPrice = .Range(pSupplyPrice & rowNum).Value
+                    
+                    .Range("J" & rowNum & ",L" & rowNum).Copy
+                    rRowCount = Cells(Rows.Count, 1).End(xlUp).Row
+                    
+                    For rRowNum = 5 To rRowCount
+                        
+                        If Range("A" & rRowNum).Value = vCode And Range("D" & rRowNum).Value = vOrderNum Then
+                            
+                            If Range("N" & rRowNum).Value = vbNullString Then
+                                
+                                Range("N" & rRowNum).PasteSpecial xlPasteValues
+                                Exit For
+                                
+                            Else
+                                
+                                vDollar = Range("N" & rRowNum).Value
+                                vWon = Range("O" & rRowNum).Value
+                                
+                                Range("N" & rRowNum).Value = vCurrencyAmount + vDollar
+                                Range("O" & rRowNum).Value = vSupplyPrice + vWon
+                                Exit For
+                                
+                            End If
+                            
+                        
+                        End If
+                        
+    
+                    Next
+                    
+                Else
+                    
+                End If
+                
+            Next
+        
+        End With
+        
+ErrorCheck:
+    If Err.Number = 0 Then
+    '성공시 성공이라는 단어 클립보드에 담기
+    Clipboard.SetText "성공"
+    Clipboard.PutInClipboard
+    
+    Else
+    '실패시 실패라는 단어 클립보드에 담기
+    Clipboard.SetText "실패"
+    Clipboard.PutInClipboard
+    
+    End If
+        
+End Sub
+
+
+Sub EditSales(vItemCode, vFile, vResultFile, vWorkPath, sItemCode, sAmount, sOrderNum, sSupplyPrice, sWon)
+    
+    Dim Clipboard As Object
+    ' Microsoft Forms 2.0 Object Library
+    Set Clipboard = CreateObject("new:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
+    
+    Dim vRCode As String
+    Dim vFCode As String
+    Dim vRAmount As Single
+    Dim vFAmount As Single
+    
+    Set di = CreateObject("Scripting.Dictionary")
+    Dim arrCode() As String
+    arrCode = Split(vItemCode, "/")
+    
+    'vba 실행시 에러관리위함
+    On Error GoTo ErrorCheck
+    
+    For Each vCode In arrCode()
+    
+        di.Add vCode, vCode
+    
+    Next
+    
+    Application.DisplayAlerts = False
+        
+        Workbooks.Open Filename:=vWorkPath & vResultFile
+        rRowCount = Cells(Rows.Count, 2).End(xlUp).Row
+        rRowETC = rRowCount + 10
+        
+        Workbooks.Open Filename:=vWorkPath & vFile
+        fRowCount = Cells(Rows.Count, 7).End(xlUp).Row
+        
+        Workbooks(vResultFile).Activate
+        With Workbooks(vFile).ActiveSheet
+        
+            For fRowNum = 2 To fRowCount
+                
+                vFCode = .Range(sItemCode & fRowNum).Value
+                vFAmount = .Range(sAmount & fRowNum).Value
+                
+                If di.exists(vFCode) = "False" Or vFAmount = 0 Then
+                
+                    'RPA 작업대상 x
+                
+                Else
+                    
+                    'RPA 작업대상 o
+                    
+                    For rRowNum = 5 To rRowCount
+                        
+                        vRCode = Range("A" & rRowNum).Value
+                        vRAmount = Range("G" & rRowNum).Value
+                        
+                        If vFCode = vRCode And vFAmount = vRAmount Then
+                            
+                            'RPA 작업대상 확인 결과파일로 복사
+                            
+                            .Range("A" & fRowNum & ":D" & fRowNum).Copy
+                            Range("S" & rRowNum).PasteSpecial xlPasteValues
+                            
+                            .Range("E" & fRowNum & ":K" & fRowNum).Copy
+                            Range("X" & rRowNum).PasteSpecial xlPasteValues
+                            Exit For
+                                                
+                            
+                        ElseIf rRowNum = rRowCount Then
+                            
+                            '비일치 건 하단에 따로 입력(rRowCoun + 5 or 10 행 부터 입력하기)
+                            
+                            .Range("A" & fRowNum & ":D" & fRowNum).Copy
+                            Range("S" & rRowETC).PasteSpecial xlPasteValues
+                            
+                            .Range("E" & fRowNum & ":K" & fRowNum).Copy
+                            Range("X" & rRowETC).PasteSpecial xlPasteValues
+                                           
+                            rRowETC = rRowETC + 1
+                        
+                        End If
+                        
+                    Next
+                
+                End If
+                      
+            Next
+        
+        End With
+        
+        CalculateSales di, vFile, vResultFile, sItemCode, sAmount, sOrderNum, sSupplyPrice, sWon
+        
+        Workbooks(vFile).Close
+        '결과파일 저장 후 닫기
+        ActiveWorkbook.Save
+        ActiveWorkbook.Close
+        
+    
+    Application.DisplayAlerts = True
+    
+ErrorCheck:
+    If Err.Number = 0 Then
+    '성공시 성공이라는 단어 클립보드에 담기
+    Clipboard.SetText "성공"
+    Clipboard.PutInClipboard
+    
+    Else
+    '실패시 실패라는 단어 클립보드에 담기
+    Clipboard.SetText "실패"
+    Clipboard.PutInClipboard
+    
+    End If
+    
+End Sub
+
+
+Sub CalculateSales(vItemCode, vFile, vResultFile, sItemCode, sAmount, sOrderNum, sSupplyPrice, sWon)
+'매출 정산건 작업 vba
+    
+    Dim Clipboard As Object
+    ' Microsoft Forms 2.0 Object Library
+    Set Clipboard = CreateObject("new:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
+    
+    Dim vCode As String
+    Dim vOrderNum As String
+    Dim vCurrencyAmount As Single
+    Dim vSupplyPrice As Single
+    Dim vDollar As Single
+    Dim vWon As Single
+        
+        'vba 실행시 에러관리위함
+        On Error GoTo ErrorCheck
+        
+        Workbooks(vResultFile).Activate
+        With Workbooks(vFile).ActiveSheet
+        
+        RowCount = .Cells(Rows.Count, 2).End(xlUp).Row
+        
+            For rowNum = 2 To RowCount
+                
+                If vItemCode.exists(.Range(sItemCode & rowNum).Value) And .Range(sAmount & rowNum).Value = 0 Then
+                    'RPA 작업대상(정산건) 확인, 결과파일로 복사
+                    
+                    vCode = .Range(sItemCode & rowNum).Value
+                    vOrderNum = .Range(sOrderNum & rowNum).Value
+                    vSupplyPrice = .Range(sSupplyPrice & rowNum).Value
+                    vCurrencyAmount = .Range(sWon & rowNum).Value
+                    
+                    .Range("I" & rowNum & ",K" & rowNum).Copy
+                    rRowCount = Cells(Rows.Count, 19).End(xlUp).Row
+                    
+                    For rRowNum = 5 To rRowCount
+                        
+                        If Range("S" & rRowNum).Value = vCode And Range("V" & rRowNum).Value = vOrderNum Then
+                            
+                            If Range("AH" & rRowNum).Value = vbNullString Then
+                                
+                                Range("AH" & rRowNum).PasteSpecial xlPasteValues
+                                Exit For
+                                
+                            Else
+                                
+                                vDollar = Range("AH" & rRowNum).Value
+                                vWon = Range("AI" & rRowNum).Value
+                                
+                                Range("AH" & rRowNum).Value = vCurrencyAmount + vDollar
+                                Range("AI" & rRowNum).Value = vSupplyPrice + vWon
+                                Exit For
+                                
+                            End If
+                            
+                        
+                        End If
+                        
+    
+                    Next
+                    
+                Else
+                    
+                End If
+                
+            Next
+        
+        End With
+        
+ErrorCheck:
+    If Err.Number = 0 Then
+    '성공시 성공이라는 단어 클립보드에 담기
+    Clipboard.SetText "성공"
+    Clipboard.PutInClipboard
+    
+    Else
+    '실패시 실패라는 단어 클립보드에 담기
+    Clipboard.SetText "실패"
+    Clipboard.PutInClipboard
+    
+    End If
+        
+End Sub
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+선물체결내역업로드
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//UploadList Grid 
+
+moment.locale('ko');
+var totalRow = $("#excelGrid_2").jqxGrid('getrows').length;
+var stsDate;
+
+for (row = 0; row < totalRow + 1; row++) {
+
+	stsDate = moment($("#excelGrid_2").jqxGrid('getrowdatabyid', row).updateDate).format('YYYY-MM-DD HH:mm:00');
+
+	if (stsDate == "2022-04-20 11:49:00") {
+		$("#excelGrid_2").jqxGrid('selectrow', row);
+	}
+
+}
+
+
+var totalRow = $("#excelGrid_2").jqxGrid('getrows').length;
+
+for (row = 0; row < totalRow + 1; row++) {
+
+	if ($("#excelGrid_2").jqxGrid('getrowdatabyid', row).updateUserId == "scrpa07" && $("#excelGrid_2").jqxGrid('getrowdatabyid', row).updateDate) {
+		$("#excelGrid_2").jqxGrid('selectrow', row);
+	}
+
+}
+
+
+//PID
+//moment 객체의 모든 날짜 출력은 설정한 로케일로 출력
+//Amend Time 컬럼 날짜 포멧 변경
+
+moment.locale('ko'); 
+var totalRow = $("#excelGrid_2").jqxGrid('getrows').length;
+var stsDate;
+
+for (row = 0; row < totalRow; row++) {
+
+	stsDate = moment($("#excelGrid_2").jqxGrid('getrowdatabyid', row).updateDate).format('YYYY-MM-DD'); 
+
+	if ($("#excelGrid_2").jqxGrid('getrowdatabyid', row).updateUserId == #UserDomain# && stsDate == #UploadTime#) {
+
+		$("#excelGrid_2").jqxGrid('selectrow', row);
+
+	}
+
+}
+
+if ( $("#excelGrid_2").jqxGrid('getselectedrowindexes').length == #ExcelRows# ) { 
+		
+		const someData = "Success";
+		let tempInput = document.createElement("input");
+		tempInput.value = someData;
+
+		document.body.appendChild(tempInput);
+		tempInput.select();
+		document.execCommand("copy");
+		document.body.removeChild(tempInput);
+}	else { 
+	
+		$("#excelGrid_2").jqxGrid('clearselection');
+
+		const someData = "Fail";
+		let tempInput = document.createElement("input");
+		tempInput.value = someData;
+
+		document.body.appendChild(tempInput);
+		tempInput.select();
+		document.execCommand("copy");
+		document.body.removeChild(tempInput);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//파일 업로드 전 UploadList에서 가장 큰 Admin Num을 가져오는 코드
+
+let arrAdmNum = new Array();
+var totalRow = $("#excelGrid_2").jqxGrid('getrows').length;
+var admNum;
+
+for (row = 0; row < totalRow; row++) {
+
+    admNum = parseInt($("#excelGrid_2").jqxGrid('getrowdatabyid', row).Seq);
+	
+	arrAdmNum.push(admNum);
+
+}
+
+const someData = Math.max.apply(null, arrAdmNum);
+let tempInput = document.createElement("input");
+tempInput.value = someData;
+
+document.body.appendChild(tempInput);
+tempInput.select();
+document.execCommand("copy");
+document.body.removeChild(tempInput);
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//파일 업로드 후 UploadList에서 업로드한 row를 선택하는 코드
+
+moment.locale('ko'); 
+var totalRow = $("#excelGrid_2").jqxGrid('getrows').length;
+var stsDate;
+var admNum;
+var userId
+
+for (row = 0; row < totalRow; row++) {
+
+	stsDate = moment($("#excelGrid_2").jqxGrid('getrowdatabyid', row).updateDate).format('YYYY-MM-DD'); 
+	admNum = parseInt($("#excelGrid_2").jqxGrid('getrowdatabyid', row).Seq);
+	userId = $("#excelGrid_2").jqxGrid('getrowdatabyid', row).updateUserId;
+
+	if (userId == #UserDomain# && stsDate == #UploadTime# && admNum > #BiggestAdmNum#) {
+
+		$("#excelGrid_2").jqxGrid('selectrow', row);
+
+	}
+
+}
+
+if ( $("#excelGrid_2").jqxGrid('getselectedrowindexes').length == #ExcelRows# ) { 
+		
+		const someData = "Success";
+		let tempInput = document.createElement("input");
+		tempInput.value = someData;
+
+		document.body.appendChild(tempInput);
+		tempInput.select();
+		document.execCommand("copy");
+		document.body.removeChild(tempInput);
+}	else { 
+	
+		$("#excelGrid_2").jqxGrid('clearselection');
+
+		const someData = "Fail";
+		let tempInput = document.createElement("input");
+		tempInput.value = someData;
+
+		document.body.appendChild(tempInput);
+		tempInput.select();
+		document.execCommand("copy");
+		document.body.removeChild(tempInput);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
